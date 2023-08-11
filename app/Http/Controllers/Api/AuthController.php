@@ -264,7 +264,7 @@ class AuthController extends ApiController
                 'token' => $token
             ]);
             Mail::to($user->email)->send(new CreateAccount($user->email, $employee->fullname, $employee->nickname, $token));
-        return $this->showMessage("We have just e-mailed your password reset link! Mr./Mrs. " . $employee->fullname);
+            return $this->showMessage("We have just e-mailed your password reset link! Mr./Mrs. " . $employee->fullname);
         } else {
             $data = $verifyData->update([
                 'email' => $email,
@@ -443,7 +443,4 @@ class AuthController extends ApiController
             return [200, $error];
         }
     }
-
-
 }
-

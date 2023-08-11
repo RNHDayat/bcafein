@@ -18,7 +18,8 @@ class CreatePostingsTable extends Migration
             $table->unsignedBigInteger('id_user'); //get a users id
             $table->unsignedBigInteger('id_credential'); //get a credential id
             $table->unsignedBigInteger('id_category');//get a category id
-            $table->string('title')->unique();
+            // $table->string('title')->unique();
+            $table->string('title');
             $table->string('title_slug')->nullable();
             $table->text('description');
             $table->string('image')->nullable();

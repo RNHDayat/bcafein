@@ -41,7 +41,7 @@ class JwtMiddleware
             if ($user->status == 0) {
                 return response()->json(['error' => 'User is Inactive !', 'code' => 401], 401);
             }
-            // return $this->showMessage('here');
+            // return $this->showMessage($loginType);
         } catch (Exception $e) {
             if ($e instanceof TokenInvalidException) {
                 return $this->showMessage('Token is Invalid', 401);

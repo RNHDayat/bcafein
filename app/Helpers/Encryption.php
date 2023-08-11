@@ -96,7 +96,7 @@ class Encryption
     {
         $number = filter_var($this->encryptMethod, FILTER_SANITIZE_NUMBER_INT);
 
-        return intval(abs($number));
+        return intval(abs((int) $number));
     }// encryptMethodLength
 
 

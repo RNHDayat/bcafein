@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\CredentialController;
@@ -42,7 +42,6 @@ Route::name('api.')->group(function () {
     Route::group(['middleware' => 'jwt.verify'], function () {
         Route::get('logout', [AuthController::class, 'logout'])->name('auth.logout');
         Route::get('profile', [AuthController::class, 'showProfile'])->name('auth.profile');
-        Route::get('home', [PostingController::class, 'index'])->name('home');
 
         Route::group(['prefix' => 'province'], function () {
             Route::get('/', [ProvinceController::class, 'index'])->name('province.index');
@@ -64,9 +63,9 @@ Route::name('api.')->group(function () {
 
         Route::group(['prefix' => 'credential'], function () {
             Route::get('/indexUser', [CredentialController::class, 'indexUser'])->name('credential.user.index');
-            Route::get('/show/{id}', [EducationController::class, 'show'])->name('credential.show');
-            Route::post('/store', [EducationController::class, 'store'])->name('credential.store');
-            Route::post('/update/{id}', [EducationController::class, 'update'])->name('credential.update');
+            Route::get('/show/{id}', [CredentialController::class, 'show'])->name('credential.show');
+            Route::post('/store', [CredentialController::class, 'store'])->name('credential.store');
+            Route::post('/update/{id}', [CredentialController::class, 'update'])->name('credential.update');
         });
 
         Route::group(['prefix' => 'knowField'], function () {
@@ -96,7 +95,13 @@ Route::name('api.')->group(function () {
          * ==========================================
          */
         Route::group(['middleware' => 'regular_user'], function () {
-            Route::get('/user', function () {
+        Route::get('home', [PostingController::class, 'index'])->name('home');
+        Route::group(['prefix' => 'posting'], function () {
+            Route::get('/', [PostingController::class, 'index'])->name('posting.index');
+            Route::get('/show/{id}', [PostingController::class, 'show'])->name('posting.show');
+            Route::post('/store', [PostingController::class, 'store'])->name('posting.store');
+        });
+            Route::get('/user', function (){
                 return response()->json('Iki user regular_user cak...');
             });
         });
@@ -126,7 +131,7 @@ Route::name('api.')->group(function () {
 
             Route::group(['prefix' => 'credential'], function () {
                 Route::get('/indexAdmin', [CredentialController::class, 'indexAdmin'])->name('credential.admin.index');
-                Route::get('/destroy/{id}', [EducationController::class, 'destroy'])->name('credential.destroy');
+                Route::get('/destroy/{id}', [CredentialController::class, 'destroy'])->name('credential.destroy');
             });
 
             Route::group(['prefix' => 'education'], function () {
