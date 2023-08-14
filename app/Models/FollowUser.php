@@ -13,4 +13,11 @@ class FollowUser extends Model
     const isFOLLOWED = 1;
     const isBLOCKED = 2;
     const isUNFOLLOWED = 3;
+    protected $table = 'follow_users';
+    protected $primaryKey = 'id';
+    protected $fillable = [
+        'id_user',
+        'following_id',
+        'follow_status',
+    ];
 }

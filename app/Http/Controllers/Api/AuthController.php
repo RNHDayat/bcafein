@@ -180,9 +180,9 @@ class AuthController extends ApiController
     public function createAccount(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string|min:5|max:255|regex:/\w*$/|unique:users,username',
+            'username' => 'required|string|min:3|max:255|regex:/\w*$/|unique:users,username',
             'email' => 'required|email|unique:users,email|max:50',
-            'fullname' => 'required|min:10|max:255',
+            'fullname' => 'required|min:3|max:255',
             'nickname' => 'required|max:40|string',
             'datebirth' => 'required|date_format:Y-m-d',
             'phone' => 'required|string|min:5|max:15',
@@ -208,10 +208,10 @@ class AuthController extends ApiController
                 'phone' => $request->phone,
             ]);
 
-            $image = QrCode::format('png')->size(500)->errorCorrection('H')->generate(route('api.showUser', ['id' => $employee->id]));
-            $tujuan = 'public/Employees/qrcode/qr-' . strval($employee->id) . '_' . time() . '.png';
-            $output_file = 'storage/Employees/qrcode/qr-' . strval($employee->id) . '_' . time() . '.png';
-            $saveStorage = Storage::disk('local')->put($tujuan, $image);
+            // $image = QrCode::format('png')->size(500)->errorCorrection('H')->generate(route('api.showUser', ['id' => $employee->id]));
+            // $tujuan = 'public/Employees/qrcode/qr-' . strval($employee->id) . '_' . time() . '.png';
+            // $output_file = 'storage/Employees/qrcode/qr-' . strval($employee->id) . '_' . time() . '.png';
+            // $saveStorage = Storage::disk('local')->put($tujuan, $image);
 
             $encrypt = new Encryption();
             $token = $encrypt->encrypt($request->email, config('secretKey.secretKey'));
@@ -220,18 +220,19 @@ class AuthController extends ApiController
                 'email' => $request->email,
                 'token' => $token
             ]);
-            Mail::to($request->email)->send(new CreateAccount($request->email, $request->fullname, $request->nickname, $token));
+            // Mail::to($request->email)->send(new CreateAccount($request->email, $request->fullname, $request->nickname, $token));
 
-            if ($saveStorage == true) {
-                Employee::find($employee->id)->update([
-                    'qrcode' => $output_file,
-                    'qrcode_link' => $tujuan,
-                    'qrcode_link' => route('api.showUser', ['id' => $employee->id])
-                ]);
-                return $this->showMessage("We have e-mailed your password reset link! Mr./Mrs. " . $employee->fullname);
-            } else {
-                return $this->errorResponse('Generate QRCode is failed. You can generate it on Profile later', 409);
-            }
+            // if ($saveStorage == true) {
+            //     Employee::find($employee->id)->update([
+            //         'qrcode' => $output_file,
+            //         'qrcode_link' => $tujuan,
+            //         'qrcode_link' => route('api.showUser', ['id' => $employee->id])
+            //     ]);
+            //     return $this->showMessage("We have e-mailed your password reset link! Mr./Mrs. " . $employee->fullname);
+            // } else {
+            //     return $this->errorResponse('Generate QRCode is failed. You can generate it on Profile later', 409);
+            // }
+            return $this->showMessage('Created Account successfully', 200);
         }
     }
 

@@ -200,6 +200,7 @@ class FollowUserController extends ApiController
                 $follow_user->follow_status = FollowUser::isFOLLOWED;
             }
             $follow_user->save();
+            return $follow_user;
         }
     }
 
@@ -212,14 +213,14 @@ class FollowUserController extends ApiController
      */
     public function show($followed, $following)
     {
-        $data = FollowUser::where('id_user','=',$following)->where('following_id','=',$followed)->get();
-        if($data->count() == 0){
+        $data = FollowUser::where('id_user', '=', $following)->where('following_id', '=', $followed)->get();
+        if ($data->count() == 0) {
             return $this->errorResponse('Data does not exists', 404);
         } else {
             $followData = $data[0];
 
             $followed_user = User::find($followData->following_id);
-            if($followed_user == null){
+            if ($followed_user == null) {
                 return $this->errorResponse('Data does not exists', 404);
             }
 

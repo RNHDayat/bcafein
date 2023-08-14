@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\ApiController;
 use App\Models\Reply;
+use App\Models\Posting;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\ApiController;
+use Illuminate\Support\Facades\Validator;
 
 class ReplyController extends ApiController
 {
@@ -36,7 +39,36 @@ class ReplyController extends ApiController
      */
     public function store(Request $request)
     {
-        //
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees; // memanggil fungsi relasi
+
+        // Validation Requests
+        $validator = Validator::make($request->all(), [
+            'id_postings'=> 'required',
+            'title' => 'required',
+            'description' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->errorResponse($validator->errors(), 400);
+        } else {
+            // Check if the requested data is duplicate
+            // $duplikasi = Posting::where('id_user', '=', $user->employees->id)->get();
+
+            // if ($duplikasi->count() == 0) {
+            $posting = new Posting();
+            $posting->id_user = $user->employees->id;
+            $posting->id_credential = $user->employees->id;
+            // $posting->id_credential = $user->employees->id;
+            $posting->title = $request->title;
+            $posting->description = $request->description;
+            $posting->save();
+            
+            $reply = new Reply();
+            $reply->id_postings = $request->id_postings;
+            $reply->toAnswer_posting = $posting->id;
+            $reply->save();
+            return $reply;
+        }
     }
 
     /**

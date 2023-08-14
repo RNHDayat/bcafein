@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\FollowCategoryController;
 use App\Http\Controllers\Api\KnowFieldController;
 use App\Http\Controllers\Api\PostingController;
+use App\Http\Controllers\Api\ReplyController;
 use App\Http\Controllers\Api\ProvinceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -86,6 +87,17 @@ Route::name('api.')->group(function () {
             Route::get('/unfollowcat/{id}', [FollowCategoryController::class, 'userUnFollowCategory'])->name('followcat.userunfolcat');
         });
 
+        Route::group(['prefix' => 'followuser'], function () {
+            Route::get('/', [FollowUserController::class, 'indexFollowTHEM'])->name('followuser.indexFollowTHEM');
+            Route::get('/followme', [FollowUserController::class, 'indexFollowME'])->name('followuser.indexFollowME');
+            Route::get('/waitthem', [FollowUserController::class, 'indexWaitingTHEM'])->name('followuser.indexWaitingTHEM');
+            Route::get('/waitme', [FollowUserController::class, 'indexWaitingME'])->name('followuser.indexWaitingME');
+            Route::get('/unfolthem', [FollowUserController::class, 'indexUnFolTHEM'])->name('followuser.indexUnFolTHEM');
+            Route::get('/unfolme', [FollowUserController::class, 'indexUnFolME'])->name('followuser.indexUnFolME');
+            Route::get('/following/{id}', [FollowUserController::class, 'following'])->name('followuser.following');
+            Route::get('/show/{id}', [FollowUserController::class, 'show'])->name('followuser.show');
+        });
+
 
         /** This is routes for Regular User
          * ==========================================
@@ -95,13 +107,18 @@ Route::name('api.')->group(function () {
          * ==========================================
          */
         Route::group(['middleware' => 'regular_user'], function () {
-        Route::get('home', [PostingController::class, 'index'])->name('home');
-        Route::group(['prefix' => 'posting'], function () {
-            Route::get('/', [PostingController::class, 'index'])->name('posting.index');
-            Route::get('/show/{id}', [PostingController::class, 'show'])->name('posting.show');
-            Route::post('/store', [PostingController::class, 'store'])->name('posting.store');
-        });
-            Route::get('/user', function (){
+            Route::get('home', [PostingController::class, 'index'])->name('home');
+            Route::group(['prefix' => 'posting'], function () {
+                Route::get('/', [PostingController::class, 'index'])->name('posting.index');
+                Route::get('/show/{id}', [PostingController::class, 'show'])->name('posting.show');
+                Route::post('/store', [PostingController::class, 'store'])->name('posting.store');
+            });
+            Route::group(['prefix' => 'reply'], function () {
+                Route::get('/', [ReplyController::class, 'index'])->name('reply.index');
+                Route::get('/show/{id}', [ReplyController::class, 'show'])->name('reply.show');
+                Route::post('/store', [ReplyController::class, 'store'])->name('reply.store');
+            });
+            Route::get('/user', function () {
                 return response()->json('Iki user regular_user cak...');
             });
         });
