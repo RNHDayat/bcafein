@@ -95,6 +95,7 @@ Route::name('api.')->group(function () {
             Route::get('/unfolthem', [FollowUserController::class, 'indexUnFolTHEM'])->name('followuser.indexUnFolTHEM');
             Route::get('/unfolme', [FollowUserController::class, 'indexUnFolME'])->name('followuser.indexUnFolME');
             Route::get('/following/{id}', [FollowUserController::class, 'following'])->name('followuser.following');
+            Route::get('/followers', 'FollowUserController@followers');
             Route::get('/show/{id}', [FollowUserController::class, 'show'])->name('followuser.show');
         });
 
