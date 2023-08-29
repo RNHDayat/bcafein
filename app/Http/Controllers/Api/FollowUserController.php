@@ -205,6 +205,12 @@ class FollowUserController extends ApiController
         }
     }
 
+    public function followers()
+    {
+        $user_followers = FollowUser::all();
+        return $user_followers;
+    }
+
     /**
      * Display the specified resource.
      *
