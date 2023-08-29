@@ -63,7 +63,7 @@ Route::name('api.')->group(function () {
             Route::post('/update/{id}', [EducationController::class, 'update'])->name('education.update');
             Route::get('/userDestroy/{id}', [EducationController::class, 'userDestroy'])->name('education.destroy');
         });
-        
+
         Route::group(['prefix' => 'credential'], function () {
             Route::get('/indexUser', [CredentialController::class, 'indexUser'])->name('credential.user.index');
             Route::get('/show/{id}', [CredentialController::class, 'show'])->name('credential.show');
@@ -97,9 +97,9 @@ Route::name('api.')->group(function () {
             Route::get('/unfolthem', [FollowUserController::class, 'indexUnFolTHEM'])->name('followuser.indexUnFolTHEM');
             Route::get('/unfolme', [FollowUserController::class, 'indexUnFolME'])->name('followuser.indexUnFolME');
             Route::get('/following/{id}', [FollowUserController::class, 'following'])->name('followuser.following');
-            Route::get('/followers', 'FollowUserController@followers');
+            // Route::get('/followers', 'FollowUserController@followers');
             Route::get('/show/{id}', [FollowUserController::class, 'show'])->name('followuser.show');
-            Route::post('/follow', [FollowUserController::class, 'follow'])->name('followuser.follow');
+            Route::get('/followers', [FollowUserController::class, 'followers'])->name('followuser.followers');
         });
         /** This is routes for Regular User
          * ==========================================
