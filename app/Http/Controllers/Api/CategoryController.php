@@ -97,7 +97,6 @@ class CategoryController extends ApiController
     {
         $user = JWTAuth::parseToken()->authenticate();
         $user->employees; // memanggil fungsi relasi
-
         // Validation Requests
         $validator = Validator::make($request->all(), [
             'codeCategory' => 'required|min:3|max:255|unique:categories,codeCategory',

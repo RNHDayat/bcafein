@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\CreateAccount;
 use App\Mail\ForgotPass;
 use App\Models\Employee;
+use App\Models\FollowUser;
 use Illuminate\Support\Str;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -324,6 +325,9 @@ class AuthController extends ApiController
     {
         $user = JWTAuth::parseToken()->authenticate();
         $user->employees;
+        // $user->followUser;
+        // $following = DB::table('follow_users')->where('id_user', '=', $user->id)->get();
+        // $user->following=$following;
         return $this->showData($user);
     }
 

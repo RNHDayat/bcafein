@@ -110,6 +110,7 @@ class KnowFieldController extends ApiController
                 $knowledge_field->name = $request->name;
                 $knowledge_field->id_user_propose = $user->id;
                 $knowledge_field->save();
+                return $knowledge_field;
 
                 // Merit System
                 # Code here...

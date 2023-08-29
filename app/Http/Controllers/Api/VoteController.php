@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\ApiController;
 use App\Models\Vote;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\ApiController;
+use Illuminate\Support\Facades\Validator;
 
 class VoteController extends ApiController
 {
@@ -36,7 +38,28 @@ class VoteController extends ApiController
      */
     public function store(Request $request)
     {
-        //
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees; // memanggil fungsi relasi
+        $vote = $validator = Validator::make($request->all(), [
+            'id_postings' => 'required',
+            'vote_status' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+        // Lakukan operasi updateOrCreate
+        $vote = Vote::updateOrCreate(
+            [
+                'id_user' => $user->id,
+                'id_postings' => $request->id_postings,
+            ],
+            [
+                'id_user' => $user->id,
+                'id_postings' => $request->id_postings,
+                'vote_status' => $request->vote_status,
+            ]
+        );
+        return response()->json(['message' => 'Vote updated successfully', 'data' => $vote], 200);
     }
 
     /**

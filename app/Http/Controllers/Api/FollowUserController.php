@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\ApiController;
-use App\Models\FollowUser;
 use App\Models\User;
+use App\Models\FollowUser;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\ApiController;
+use Illuminate\Support\Facades\Validator;
 
 class FollowUserController extends ApiController
 {
@@ -252,10 +253,33 @@ class FollowUserController extends ApiController
      * @param  \App\Models\FollowUser  $followUser
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, FollowUser $followUser)
+    public function follow(Request $request)
     {
         $user = JWTAuth::parseToken()->authenticate();
         $user->employees; // memanggil fungsi relasi
+        $validator = Validator::make($request->all(), [
+            'following_id' => 'required',
+            'follow_status' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->errorResponse($validator->errors(), 400);
+        } else {
+            // Kolom-kolom yang digunakan untuk pengecekan (misalnya, user_id dan status)
+            $identifier = [
+                'id_user' => $user->id,
+                'following_id' => $request->following_id,
+            ];
+            // Data yang ingin diupdate atau dibuat
+            $data = [
+                'follow_status' => $request->follow_status,
+            ];
+
+            // Update atau create data
+            $follow = FollowUser::updateOrCreate($identifier, $data);
+            // $user->save();
+            return $this->showData($follow, 200);
+        }
     }
 
     /**

@@ -20,4 +20,10 @@ class FollowUser extends Model
         'following_id',
         'follow_status',
     ];
+
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user');
+    }
 }

@@ -7,9 +7,11 @@ use App\Http\Controllers\Api\CredentialController;
 use App\Http\Controllers\Api\EducationController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\FollowCategoryController;
+use App\Http\Controllers\Api\FollowUserController;
 use App\Http\Controllers\Api\KnowFieldController;
 use App\Http\Controllers\Api\PostingController;
 use App\Http\Controllers\Api\ReplyController;
+use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\Api\ProvinceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -61,7 +63,7 @@ Route::name('api.')->group(function () {
             Route::post('/update/{id}', [EducationController::class, 'update'])->name('education.update');
             Route::get('/userDestroy/{id}', [EducationController::class, 'userDestroy'])->name('education.destroy');
         });
-
+        
         Route::group(['prefix' => 'credential'], function () {
             Route::get('/indexUser', [CredentialController::class, 'indexUser'])->name('credential.user.index');
             Route::get('/show/{id}', [CredentialController::class, 'show'])->name('credential.show');
@@ -96,9 +98,8 @@ Route::name('api.')->group(function () {
             Route::get('/unfolme', [FollowUserController::class, 'indexUnFolME'])->name('followuser.indexUnFolME');
             Route::get('/following/{id}', [FollowUserController::class, 'following'])->name('followuser.following');
             Route::get('/show/{id}', [FollowUserController::class, 'show'])->name('followuser.show');
+            Route::post('/follow', [FollowUserController::class, 'follow'])->name('followuser.follow');
         });
-
-
         /** This is routes for Regular User
          * ==========================================
          * |                                        |
@@ -110,7 +111,10 @@ Route::name('api.')->group(function () {
             Route::get('home', [PostingController::class, 'index'])->name('home');
             Route::group(['prefix' => 'posting'], function () {
                 Route::get('/', [PostingController::class, 'index'])->name('posting.index');
+                Route::get('/following', [PostingController::class, 'indexFollowing'])->name('posting.indexFollowing');
+                Route::get('/profile/{id}', [PostingController::class, 'profile'])->name('posting.profile');
                 Route::get('/show/{id}', [PostingController::class, 'show'])->name('posting.show');
+                Route::get('/detail/{id}', [PostingController::class, 'detailPost'])->name('posting.detailPost');
                 Route::post('/store', [PostingController::class, 'store'])->name('posting.store');
             });
             Route::group(['prefix' => 'reply'], function () {
@@ -118,11 +122,15 @@ Route::name('api.')->group(function () {
                 Route::get('/show/{id}', [ReplyController::class, 'show'])->name('reply.show');
                 Route::post('/store', [ReplyController::class, 'store'])->name('reply.store');
             });
+            Route::group(['prefix' => 'vote'], function () {
+                Route::get('/', [VoteController::class, 'index'])->name('vote.index');
+                Route::get('/show/{id}', [VoteController::class, 'show'])->name('vote.show');
+                Route::post('/store', [VoteController::class, 'store'])->name('vote.store');
+            });
             Route::get('/user', function () {
                 return response()->json('Iki user regular_user cak...');
             });
         });
-
         /** This is routes for Admins
          * ===========================================
          * |                                         |
@@ -185,6 +193,7 @@ Route::name('api.')->group(function () {
          * |                                        |
          * ==========================================
          */
+
         Route::group(['middleware' => 'super_admin'], function () {
             Route::get('/superadmin', function () {
                 return response()->json('Iki user super_admin cak...');

@@ -64,8 +64,8 @@ class ReplyController extends ApiController
             $posting->save();
             
             $reply = new Reply();
-            $reply->id_postings = $request->id_postings;
-            $reply->toAnswer_posting = $posting->id;
+            $reply->id_postings = $posting->id;
+            $reply->toAnswer_posting = $request->id_postings;
             $reply->save();
             return $reply;
         }

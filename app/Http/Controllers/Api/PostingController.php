@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\ApiController;
-use App\Models\FollowUser;
-use App\Models\Posting;
+use App\Models\User;
 use App\Models\Reply;
+use App\Models\Posting;
+use App\Models\Employee;
+use App\Models\FollowUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -27,21 +30,61 @@ class PostingController extends ApiController
     {
         $user = JWTAuth::parseToken()->authenticate();
         $user->employees; // memanggil fungsi relasi
-
-        // $data = Reply::join('postings', 'replies.id_postings','=','postings.id')->where('postings.id_user','=',$user->id)->where('replies.toAnswer_posting','=',null)->orderBy('postings.updated_at', 'desc');
-        $data = Reply::join('postings', 'replies.id_postings', '=', 'postings.id')->where('postings.id_user', '=', $user->id)->where('replies.toAnswer_posting', '=', null);
+        $user->followUser->pluck('following_id');
+        $data = Reply::join('postings', 'replies.id_postings','=','postings.id')
+            ->join('employees', 'employees.id_user','=','postings.id_user')
+            ->join('follow_users', 'follow_users.id_user','=','postings.id_user')
+            ->where('follow_users.follow_status','!=',1)
+            ->where('follow_users.id_user','!=',$user->id)
+            ->where('postings.id_user','!=',$user->id)
+            ->where('replies.toAnswer_posting','=',null);
+            // ->where('postings.id','=',1299);
+            // ->get();
+            // ->get();
+        
         // Following User Posts
-        $userFollowing = FollowUser::where('id_user', '=', $user->id)->get();
-        for ($i = 0; $i < $userFollowing->count(); $i++) {
-            $data = $data->orWhere('postings.id_user', '=', $userFollowing[$i]->following_id)->where('replies.toAnswer_posting', '=', null);
-        }
-        // Fetching data from query
-        $data = $data->orderBy('postings.updated_at', 'desc')->get();
+        // $userFollowing = FollowUser::where('id_user', '=', $user->id)->get();
+        // for ($i = 0; $i < $userFollowing->count(); $i++) {
+        //     $data = $data->orWhere('postings.id_user', '=', $userFollowing[$i]->following_id)->where('replies.toAnswer_posting', '=', null);
+        // }
+        // // Fetching data from query
+        $data = $data->inRandomOrder()->get();
 
 
         $data = $this->cekReplyData($data);
-
+        // return $data;
         return $this->showAll($data);
+    }
+
+    public function detailPost($id)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees; // memanggil fungsi relasi
+        $user->followUser->pluck('following_id');
+        $data = Reply::join('postings', 'replies.id_postings','=','postings.id')
+            ->join('employees', 'employees.id_user','=','postings.id_user')
+            ->join('follow_users', 'follow_users.id_user','=','postings.id_user')
+            // ->where('follow_users.follow_status','!=',1)
+            // ->where('follow_users.id_user','!=',$user->id)
+            ->where('postings.id','=',$id)
+            // ->where('replies.toAnswer_posting','=',null);
+            // ->where('postings.id','=',1299);
+            ->get();
+            // ->get();
+        
+        // Following User Posts
+        // $userFollowing = FollowUser::where('id_user', '=', $user->id)->get();
+        // for ($i = 0; $i < $userFollowing->count(); $i++) {
+        //     $data = $data->orWhere('postings.id_user', '=', $userFollowing[$i]->following_id)->where('replies.toAnswer_posting', '=', null);
+        // }
+        // // Fetching data from query
+        // $data = $data->inRandomOrder()->get();
+
+
+        $data = $this->cekReplyData($data);
+        // return $data;
+        return $this->showAll($data);
+        return $data;
     }
 
     private function cekReplyData($data)
@@ -53,9 +96,47 @@ class PostingController extends ApiController
             array_push($lariknya, $appendData);
             $data[$i]->repliedData = $appendData;
         }
-
         return $data;
     }
+    public function indexFollowing()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees; // memanggil fungsi relasi
+        $user->followUser->pluck('following_id');
+        $data = Reply::join('postings', 'replies.id_postings','=','postings.id')
+            ->join('employees', 'employees.id_user','=','postings.id_user')
+            ->join('follow_users', 'follow_users.id_user','=','postings.id_user')
+            ->where('follow_users.follow_status','=',1) //following
+            ->where('follow_users.id_user','!=',$user->id)
+            ->where('postings.id_user','!=',$user->id)
+            ->where('replies.toAnswer_posting','=',null);
+            // ->where('postings.id','=',1299);
+            // ->get();
+            // ->get();
+        
+        // Following User Posts
+        // $userFollowing = FollowUser::where('id_user', '=', $user->id)->get();
+        // for ($i = 0; $i < $userFollowing->count(); $i++) {
+        //     $data = $data->orWhere('postings.id_user', '=', $userFollowing[$i]->following_id)->where('replies.toAnswer_posting', '=', null);
+        // }
+        // // Fetching data from query
+        $data = $data->inRandomOrder()->get();
+
+
+        $data = $this->cekReplyData($data);
+        // return $data;
+        return $this->showAll($data);
+    }
+
+    public function profile($id)
+    {
+        // $user=Employee::where('id_user', $id);
+        $user=DB::table('employees')
+            ->where('employees.id_user', $id)
+            ->get();
+        return $user;
+    }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -80,7 +161,7 @@ class PostingController extends ApiController
 
         // Validation Requests
         $validator = Validator::make($request->all(), [
-            'title' => 'required',
+            'title' ,
             'description' => 'required',
         ]);
         if ($validator->fails()) {
