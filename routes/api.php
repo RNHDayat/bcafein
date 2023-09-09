@@ -5,9 +5,9 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\CredentialController;
 use App\Http\Controllers\Api\EducationController;
+use App\Http\Controllers\Api\FollowUserController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\FollowCategoryController;
-use App\Http\Controllers\Api\FollowUserController;
 use App\Http\Controllers\Api\KnowFieldController;
 use App\Http\Controllers\Api\PostingController;
 use App\Http\Controllers\Api\ReplyController;
@@ -97,9 +97,9 @@ Route::name('api.')->group(function () {
             Route::get('/unfolthem', [FollowUserController::class, 'indexUnFolTHEM'])->name('followuser.indexUnFolTHEM');
             Route::get('/unfolme', [FollowUserController::class, 'indexUnFolME'])->name('followuser.indexUnFolME');
             Route::get('/following/{id}', [FollowUserController::class, 'following'])->name('followuser.following');
-            // Route::get('/followers', 'FollowUserController@followers');
             Route::get('/show/{id}', [FollowUserController::class, 'show'])->name('followuser.show');
             Route::get('/followers', [FollowUserController::class, 'followers'])->name('followuser.followers');
+            Route::get('/showfollowings', [FollowUserController::class, 'showfollowings'])->name('followuser.showfollowings');
         });
         /** This is routes for Regular User
          * ==========================================
