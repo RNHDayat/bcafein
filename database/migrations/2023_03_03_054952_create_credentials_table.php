@@ -18,6 +18,7 @@ class CreateCredentialsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('id_employee'); //get a employee id
             $table->integer('type')->comment('0=expertise,1=edu,2=loc,3=employment,4=honor,5=answ,6=repost,7=etc');
+            //0=keahlian,1=pendidikan,2=lokasi,3=pekerjaan,4=kehormatan,5=jawaban,6=repost,7=dll
             $table->string('description');
             $table->boolean('hide')->default(Credential::UNHIDE);
 

@@ -69,12 +69,16 @@ Route::name('api.')->group(function () {
             Route::get('/show/{id}', [CredentialController::class, 'show'])->name('credential.show');
             Route::post('/store', [CredentialController::class, 'store'])->name('credential.store');
             Route::post('/update/{id}', [CredentialController::class, 'update'])->name('credential.update');
+            Route::post('/destroy/{id}', [CredentialController::class, 'destroy'])->name('credential.destroy');
         });
 
         Route::group(['prefix' => 'knowField'], function () {
             Route::get('/', [KnowFieldController::class, 'index'])->name('knowField.index');
-            Route::get('/show/{id}', [KnowFieldController::class, 'show'])->name('knowField.show');
+            Route::get('/showFollowIlmu', [KnowFieldController::class, 'showFollowIlmu'])->name('knowField.showFollowIlmu');
+            Route::get('/show/{codeIlmu}', [KnowFieldController::class, 'show'])->name('knowField.show');
+            Route::get('/showDetail/{codeIlmu}', [KnowFieldController::class, 'showDetail'])->name('knowField.showDetail');
             Route::post('/store', [KnowFieldController::class, 'store'])->name('knowField.store');
+            Route::post('/follow', [KnowFieldController::class, 'follow'])->name('knowField.follow');
         });
 
         Route::group(['prefix' => 'category'], function () {
@@ -113,6 +117,7 @@ Route::name('api.')->group(function () {
             Route::group(['prefix' => 'posting'], function () {
                 Route::get('/', [PostingController::class, 'index'])->name('posting.index');
                 Route::get('/following', [PostingController::class, 'indexFollowing'])->name('posting.indexFollowing');
+                Route::get('/indexProfile', [PostingController::class, 'indexProfile'])->name('posting.indexProfile');
                 Route::get('/profile/{id}', [PostingController::class, 'profile'])->name('posting.profile');
                 Route::get('/show/{id}', [PostingController::class, 'show'])->name('posting.show');
                 Route::get('/detail/{id}', [PostingController::class, 'detailPost'])->name('posting.detailPost');

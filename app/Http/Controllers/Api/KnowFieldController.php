@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\ApiController;
-use App\Http\Controllers\Controller;
-use App\Models\knowField;
 use Exception;
+use App\Models\Posting;
+use App\Models\knowField;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiController;
+use App\Models\Employee;
+use App\Models\Reply;
+use Illuminate\Support\Facades\Validator;
 
 class KnowFieldController extends ApiController
 {
@@ -158,21 +162,184 @@ class KnowFieldController extends ApiController
         }
     }
 
+    public function follow(Request $request)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees; // memanggil fungsi relasi
+        //get data knowField
+        $record = knowField::where('codeIlmu', '=', $request->codeIlmu)->first();
+        // $record = knowField::find('codeIlmu', '=', $request->codeIlmu);
+        if ($record->id_user_follow == null && $record->user_status_follow == null) {
+            // Jika id_user tidak ada dalam array, tambahkan id_user baru
+            $id_user_list[] = $user->id;
+            // Juga tambahkan status_follow baru == following(1)
+            $status_follow_list[] = 1;
+            // Konversi array PHP kembali menjadi string JSON
+            $record->id_user_follow = json_encode($id_user_list);
+            $record->user_status_follow = json_encode($status_follow_list);
+
+            // Simpan perubahan ke database
+            $record->save();
+        } else {
+            // Konversi string JSON menjadi array PHP
+            $id_user_list = json_decode($record->id_user_follow);
+            $status_follow_list = json_decode($record->user_status_follow);
+            // Cari indeks di mana id_user adalah id_user_login
+            $index = array_search($user->id, $id_user_list);
+
+            // Jika ditemukan, update status_follow menjadi 3
+            if ($index !== false) {
+                if ($status_follow_list[$index] == 1) {
+                    $status_follow_list[$index] = 2; //unfollow
+                } else {
+                    $status_follow_list[$index] = 1; //follow
+                }
+            } else {
+                // Jika id_user tidak ada dalam array, tambahkan id_user baru
+                $id_user_list[] = $user->id;
+                // Juga tambahkan status_follow baru == following(1)
+                $status_follow_list[] = 1;
+            }
+
+            // Konversi array PHP kembali menjadi string JSON
+            $record->id_user_follow = json_encode($id_user_list);
+            $record->user_status_follow = json_encode($status_follow_list);
+
+            // Simpan perubahan ke database
+            $record->save();
+        }
+        return $this->showData($record, 200);
+
+        // return response()->json(['data' => $record]);
+    }
+
     /**
      * Display the specified resource.
      *
      * @param  integer id knowField
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function showFollowIlmu()
     {
-        $data = knowField::where('id', '=', $id)->get();
-
-        if ($data->count() == 0) {
-            return $this->errorResponse('Data does not exists', 404);
-        } else {
-            return $this->showData($data, 200);
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees; // memanggil fungsi relasi
+        // Ambil data yang memiliki id_user = 5 dan status_follow = 1
+        $results = knowField::where('id_user_follow', '!=', null)
+            ->where('user_status_follow', '!=', null)
+            ->get();
+        // Transform "id_knowField" into arrays if not null
+        foreach ($results as $item) {
+            $item->id_user_follow = json_decode($item->id_user_follow);
+            $item->user_status_follow = json_decode($item->user_status_follow);
+            $index = array_search($user->id, $item->id_user_follow);
+            if ($index !== false) {
+                $item->id_user_follow = $item->id_user_follow[$index];
+                $item->user_status_follow = $item->user_status_follow[$index];
+            }
         }
+        // Filter hanya data dengan user_status_follow = 1
+        $filteredResults = $results->filter(function ($item) {
+            return $item->user_status_follow == 1;
+        });
+        // Gunakan values() untuk menghilangkan kunci indeks
+        $filteredResults = $filteredResults->values();
+
+        return response()->json($filteredResults);
+        // $results = $results->pluck('user_status_follow');
+
+
+        // Filter data based on "id_knowField" that matches $codeIlmu
+        // $filteredData = $results->filter(function ($item) use ($user) {
+        //     return in_array($user->id, $item->id_user_follow) && in_array(1, $item->user_status_follow);
+        // });
+        // foreach ($results as $items) {
+        //     $items->id_user_follow = json_decode($items->id_user_follow);
+        //     $items->user_status_follow = json_decode($items->user_status_follow);
+        //     $index = array_search($user->id, $items->id_user_follow);
+        //     if ($index !== false) {
+        //         $items->id_user_follow = $items->id_user_follow[$index];
+        //         $items->user_status_follow = $items->user_status_follow[$index];
+        //     }
+        // }
+    }
+    public function show($codeIlmu)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees; // memanggil fungsi relasi
+        $data = knowField::where('codeIlmu', '=', $codeIlmu)->first();
+        if ($data->id_user_follow != null && $data->user_status_follow != null) {
+            $id_user_list = json_decode($data->id_user_follow);
+            $status_follow_list = json_decode($data->user_status_follow);
+            // Cari indeks di mana id_user adalah id_user_login
+            $index = array_search($user->id, $id_user_list);
+
+            // Jika ditemukan, update status_follow 
+            if ($index !== false) {
+                $id_user = $id_user_list[$index];
+                $status_follow = $status_follow_list[$index];
+            }
+            return response()->json(['id' => $id_user, 'status_follow' => $status_follow]);
+        }
+        return response()->json(['id' => $data->id, 'status_follow' => 2]);
+
+
+        // if ($data == null) {
+        // } else {
+        //     // return $this->showData($data, 200);
+        // }
+    }
+
+    //show posting ruang
+    public function showDetail($codeIlmu)
+    {
+        $data = Posting::where('id_knowField', '!=', null)->get();
+
+        // Transform "id_knowField" into arrays if not null
+        foreach ($data as $item) {
+            if ($item->id_knowField !== null) {
+                $item->id_knowField = json_decode($item->id_knowField);
+            }
+        }
+
+        // Filter data based on "id_knowField" that matches $codeIlmu
+        $filteredData = $data->filter(function ($item) use ($codeIlmu) {
+            return in_array($codeIlmu, $item->id_knowField);
+        });
+
+        if ($filteredData->isEmpty()) {
+            return $this->errorResponse('Data does not exist', 404);
+        } else {
+            // Retrieve all data from Employee model based on id_user
+            $userIds = $filteredData->pluck('id_user');
+            $employeeData = Employee::whereIn('id_user', $userIds)->get();
+
+            // Combine employee data with filtered data based on id_user
+            $combinedData = $filteredData->map(function ($item) use ($employeeData) {
+                $user = $employeeData->where('id_user', $item->id_user)->first();
+                if ($user) {
+                    $item->user = $user;
+                }
+                return $item;
+            });
+            // Gunakan values() untuk menghilangkan kunci indeks
+            $combinedData = $combinedData->values();
+            // $combinedData = $this->cekReplyData($combinedData);
+
+            return $this->showData($combinedData, 200);
+        }
+    }
+
+
+    private function cekReplyData($data)
+    {
+        $lariknya = array();
+        for ($i = 0; $i < count($data); $i++) {
+            $appendData = Reply::join('postings', 'replies.id_postings', '=', 'postings.id')->where('replies.toAnswer_posting', '=', $data[$i]->id_postings)->orderBy('postings.updated_at', 'desc')->get();
+            $appendData = $this->cekReplyData($appendData);
+            array_push($lariknya, $appendData);
+            $data[$i]->repliedData = $appendData;
+        }
+        return $data;
     }
 
     /**

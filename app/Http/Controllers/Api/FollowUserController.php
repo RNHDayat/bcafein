@@ -7,6 +7,7 @@ use App\Models\FollowUser;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\ApiController;
+use App\Models\Employee;
 use Illuminate\Support\Facades\Validator;
 
 class FollowUserController extends ApiController
@@ -210,9 +211,15 @@ class FollowUserController extends ApiController
         $user = JWTAuth::parseToken()->authenticate();
         $user->employees; // memanggil fungsi relasi
 
-        $user_followers = FollowUser::where('id_user', '=', $user->id)
-                        ->where('follow_status', '=', 1)
-                        ->get();
+        // $user_followers = FollowUser::where('follow_users.id_user', '=', $user->id)
+        //     ->where('follow_status', '=', 1)
+        //     ->get();
+
+        $user_followers = FollowUser::join('employees','employees.id_user','=','follow_users.following_id')
+            ->where('follow_users.id_user', '=', $user->id)
+            ->where('follow_status', '=', 1)
+            ->get();
+                
         return $user_followers;
     }
 

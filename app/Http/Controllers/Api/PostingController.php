@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\ApiController;
+use App\Models\Credential;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -31,17 +32,16 @@ class PostingController extends ApiController
         $user = JWTAuth::parseToken()->authenticate();
         $user->employees; // memanggil fungsi relasi
         $user->followUser->pluck('following_id');
-        $data = Reply::join('postings', 'replies.id_postings','=','postings.id')
-            ->join('employees', 'employees.id_user','=','postings.id_user')
-            ->join('follow_users', 'follow_users.id_user','=','postings.id_user')
-            ->where('follow_users.follow_status','!=',1)
-            ->where('follow_users.id_user','!=',$user->id)
-            ->where('postings.id_user','!=',$user->id)
-            ->where('replies.toAnswer_posting','=',null);
-            // ->where('postings.id','=',1299);
-            // ->get();
-            // ->get();
-        
+        $data = Reply::join('postings', 'replies.id_postings', '=', 'postings.id')
+            ->join('employees', 'employees.id_user', '=', 'postings.id_user')
+            ->join('follow_users', 'follow_users.id_user', '=', 'postings.id_user')
+            ->where('follow_users.follow_status', '!=', 1)
+            ->where('follow_users.id_user', '!=', $user->id)
+            ->where('postings.id_user', '!=', $user->id)
+            ->where('replies.toAnswer_posting', '=', null);
+        // ->where('postings.id','=',1299);
+        // ->get();
+        // ->get();
         // Following User Posts
         // $userFollowing = FollowUser::where('id_user', '=', $user->id)->get();
         // for ($i = 0; $i < $userFollowing->count(); $i++) {
@@ -49,29 +49,25 @@ class PostingController extends ApiController
         // }
         // // Fetching data from query
         $data = $data->inRandomOrder()->get();
-
-
         $data = $this->cekReplyData($data);
         // return $data;
         return $this->showAll($data);
     }
-
     public function detailPost($id)
     {
         $user = JWTAuth::parseToken()->authenticate();
         $user->employees; // memanggil fungsi relasi
         $user->followUser->pluck('following_id');
-        $data = Reply::join('postings', 'replies.id_postings','=','postings.id')
-            ->join('employees', 'employees.id_user','=','postings.id_user')
-            ->join('follow_users', 'follow_users.id_user','=','postings.id_user')
+        $data = Reply::join('postings', 'replies.id_postings', '=', 'postings.id')
+            ->join('employees', 'employees.id_user', '=', 'postings.id_user')
+            ->join('follow_users', 'follow_users.id_user', '=', 'postings.id_user')
             // ->where('follow_users.follow_status','!=',1)
             // ->where('follow_users.id_user','!=',$user->id)
-            ->where('postings.id','=',$id)
+            ->where('postings.id', '=', $id)
             // ->where('replies.toAnswer_posting','=',null);
             // ->where('postings.id','=',1299);
             ->get();
-            // ->get();
-        
+        // ->get();
         // Following User Posts
         // $userFollowing = FollowUser::where('id_user', '=', $user->id)->get();
         // for ($i = 0; $i < $userFollowing->count(); $i++) {
@@ -79,14 +75,11 @@ class PostingController extends ApiController
         // }
         // // Fetching data from query
         // $data = $data->inRandomOrder()->get();
-
-
         $data = $this->cekReplyData($data);
         // return $data;
         return $this->showAll($data);
         return $data;
     }
-
     private function cekReplyData($data)
     {
         $lariknya = array();
@@ -103,17 +96,17 @@ class PostingController extends ApiController
         $user = JWTAuth::parseToken()->authenticate();
         $user->employees; // memanggil fungsi relasi
         $user->followUser->pluck('following_id');
-        $data = Reply::join('postings', 'replies.id_postings','=','postings.id')
-            ->join('employees', 'employees.id_user','=','postings.id_user')
-            ->join('follow_users', 'follow_users.id_user','=','postings.id_user')
-            ->where('follow_users.follow_status','=',1) //following
-            ->where('follow_users.id_user','!=',$user->id)
-            ->where('postings.id_user','!=',$user->id)
-            ->where('replies.toAnswer_posting','=',null);
-            // ->where('postings.id','=',1299);
-            // ->get();
-            // ->get();
-        
+        $data = Reply::join('postings', 'replies.id_postings', '=', 'postings.id')
+            ->join('employees', 'employees.id_user', '=', 'postings.id_user')
+            ->join('follow_users', 'follow_users.id_user', '=', 'postings.id_user')
+            ->where('follow_users.follow_status', '=', 1) //following
+            ->where('follow_users.id_user', '!=', $user->id)
+            ->where('postings.id_user', '!=', $user->id)
+            ->where('replies.toAnswer_posting', '=', null);
+        // ->where('postings.id','=',1299);
+        // ->get();
+        // ->get();
+
         // Following User Posts
         // $userFollowing = FollowUser::where('id_user', '=', $user->id)->get();
         // for ($i = 0; $i < $userFollowing->count(); $i++) {
@@ -131,12 +124,37 @@ class PostingController extends ApiController
     public function profile($id)
     {
         // $user=Employee::where('id_user', $id);
-        $user=DB::table('employees')
+        $user = DB::table('employees')
             ->where('employees.id_user', $id)
             ->get();
         return $user;
     }
-    
+
+    public function indexProfile()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees; // memanggil fungsi relasi
+        $posting = Posting::where('id_user', '=', $user->id)->get();
+        // Retrieve all data from Employee model based on id_user
+        $userIds = $posting->pluck('id_user');
+        $employeeData = Employee::whereIn('id_user', $userIds)->get();
+
+        // Combine employee data with filtered data based on id_user
+        $combinedData = $posting->map(function ($item) use ($employeeData) {
+            $user = $employeeData->where('id_user', $item->id_user)->first();
+            if ($user) {
+                $item->user = $user;
+            }
+            return $item;
+        });
+        // Gunakan values() untuk menghilangkan kunci indeks
+        $combinedData = $combinedData->values();
+        // $combinedData = $this->cekReplyData($combinedData);
+
+        return $this->showData($combinedData, 200);
+        // return response()->json(["data"=>$posting]);
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -161,7 +179,7 @@ class PostingController extends ApiController
 
         // Validation Requests
         $validator = Validator::make($request->all(), [
-            'title' ,
+            'title',
             'description' => 'required',
         ]);
         if ($validator->fails()) {
@@ -169,16 +187,23 @@ class PostingController extends ApiController
         } else {
             // Check if the requested data is duplicate
             // $duplikasi = Posting::where('id_user', '=', $user->employees->id)->get();
+            $credential = Credential::where('id_employee', '=', $user->employees->id)
+                ->where('type', '=', 0)->first();
 
             // if ($duplikasi->count() == 0) {
             $posting = new Posting();
             $posting->id_user = $user->employees->id;
-            $posting->id_credential = $user->employees->id;
+            $posting->id_credential = $credential->id;
+            $tag = json_decode($request->id_knowField);
+            if (count($tag) == 0) {
+                $posting->id_knowField = null;
+            } else {
+                $posting->id_knowField = $request->id_knowField;
+            }
             // $posting->id_credential = $user->employees->id;
             $posting->title = $request->title;
             $posting->description = $request->description;
             $posting->save();
-
             // Merit System
             # Code here...
             // } else {

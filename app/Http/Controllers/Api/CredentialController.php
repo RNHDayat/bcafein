@@ -11,6 +11,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class CredentialController extends ApiController
 {
+
     /**
      * Display a listing of the resource.
      *
@@ -48,7 +49,7 @@ class CredentialController extends ApiController
         $user->employees; // memanggil fungsi relasi
 
         $data = new Credential();
-        $data = $data->where('id_employee','=',$user->employees->id);
+        $data = $data->where('id_employee', '=', $user->employees->id);
         if (request()->has('query')) {
             $q = request()->get('query');
             $data = $data->where('description', 'LIKE', '%' . $q . '%');
@@ -90,14 +91,19 @@ class CredentialController extends ApiController
 
         // Validation Requests
         $validator = Validator::make($request->all(), [
-            'type' => 'required|numeric|min:1|in:0,1,2,3,4,5',
+            //0=keahlian,1=pendidikan,2=lokasi,3=pekerjaan,4=kehormatan,5=jawaban,6=repost,7=dll
+            'type' => 'required|numeric|in:0,1,2,3,4,5',
             'description' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors(), 400);
         } else {
             // Check if the requested data is duplicate
-            $duplikasi = Credential::where('id_employee', '=', $user->employees->id)->where('type','=',$request->type)->where('description','=',$request->description)->get();
+            $duplikasi = Credential::where('id_employee', '=', $user->employees->id)
+                        ->where('type', '=', $request->type)
+                        ->where('description', '=', $request->description)
+                        ->get();
+                        
 
             if ($duplikasi->count() == 0) {
                 $credential = new Credential();
@@ -149,7 +155,7 @@ class CredentialController extends ApiController
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'type' => 'required|numeric|min:1|in:0,1,2,3,4,5',
+            'type' => 'required|numeric|in:0,1,2,3,4,5',
             'description' => 'required',
             'hide' => 'required|numeric|in:0,1'
         ]);
@@ -158,7 +164,7 @@ class CredentialController extends ApiController
             return $this->errorResponse($validator->errors(), 400);
         } else {
             $credential = Credential::find($id);
-            $duplikasi = Credential::where('id_employee', '=', $credential->id_employee)->where('type','=',$request->type)->where('description','=',$request->description)->get();
+            $duplikasi = Credential::where('id_employee', '=', $credential->id_employee)->where('type', '=', $request->type)->where('description', '=', $request->description)->get();
 
             if ($duplikasi->count() == 0) {
                 $credential->type = $request->type;
