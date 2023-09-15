@@ -98,6 +98,32 @@ class EmployeeController extends ApiController
         //
     }
 
+    public function updateFullname(Request $request)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees; // memanggil fungsi relasi
+
+        // Validation Requests
+        $validator = Validator::make($request->all(), [
+            'fullname' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->errorResponse($validator->errors(), 400);
+        } else {
+            // Check if the requested data is duplicate
+            $duplikasi = Employee::where('id', '=', $employee->id_user)->where('fullname','=',$request->fullname)->get();
+
+            if ($duplikasi->count() == 0) {
+                $employee = new Employee();
+                $employee->id = $employee->id_user;
+                $employee->fullname = $request->fullname;
+                $employee->save();
+            } else {
+                return $this->errorResponse("Duplicate data! The requested education data is already exists", 400);
+            }
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      *

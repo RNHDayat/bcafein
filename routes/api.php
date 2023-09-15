@@ -72,6 +72,10 @@ Route::name('api.')->group(function () {
             Route::post('/destroy/{id}', [CredentialController::class, 'destroy'])->name('credential.destroy');
         });
 
+        Route::group(['prefix' => 'employee'], function () {
+            Route::put('/update/{id}', [EmployeeController::class, 'updateFullname'])->name('employee.update');
+        });
+
         Route::group(['prefix' => 'knowField'], function () {
             Route::get('/', [KnowFieldController::class, 'index'])->name('knowField.index');
             Route::get('/showFollowIlmu', [KnowFieldController::class, 'showFollowIlmu'])->name('knowField.showFollowIlmu');
