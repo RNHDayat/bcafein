@@ -211,15 +211,9 @@ class FollowUserController extends ApiController
         $user = JWTAuth::parseToken()->authenticate();
         $user->employees; // memanggil fungsi relasi
 
-        // $user_followers = FollowUser::where('follow_users.id_user', '=', $user->id)
-        //     ->where('follow_status', '=', 1)
-        //     ->get();
-
-        $user_followers = FollowUser::join('employees','employees.id_user','=','follow_users.following_id')
-            ->where('follow_users.id_user', '=', $user->id)
-            ->where('follow_status', '=', 1)
-            ->get();
-                
+        $user_followers = FollowUser::where('id_user', '=', $user->id)
+                        ->where('follow_status', '=', 1)
+                        ->get();
         return $user_followers;
     }
 
