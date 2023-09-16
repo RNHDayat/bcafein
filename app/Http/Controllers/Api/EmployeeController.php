@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class EmployeeController extends ApiController
 {
@@ -111,11 +112,11 @@ class EmployeeController extends ApiController
             return $this->errorResponse($validator->errors(), 400);
         } else {
             // Check if the requested data is duplicate
-            $duplikasi = Employee::where('id', '=', $employee->id_user)->where('fullname','=',$request->fullname)->get();
+            $duplikasi = Employee::where('id', '=', $user->id)->where('fullname','=',$request->fullname)->get();
 
             if ($duplikasi->count() == 0) {
                 $employee = new Employee();
-                $employee->id = $employee->id_user;
+                $employee->id = $user->id;
                 $employee->fullname = $request->fullname;
                 $employee->save();
             } else {
