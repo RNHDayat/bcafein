@@ -221,7 +221,7 @@ class AuthController extends ApiController
                 'email' => $request->email,
                 'token' => $token
             ]);
-            // Mail::to($request->email)->send(new CreateAccount($request->email, $request->fullname, $request->nickname, $token));
+            Mail::to($request->email)->send(new CreateAccount($request->email, $request->fullname, $request->nickname, $token));
 
             // if ($saveStorage == true) {
             //     Employee::find($employee->id)->update([
@@ -321,14 +321,18 @@ class AuthController extends ApiController
      * @param
      * @return
      */
-    public function showProfile()
+    public function showProfile($id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
-        $user->employees;
+        // $user = JWTAuth::parseToken()->authenticate();
+        // $user->employees;
+
+        $user = User::with('employees')->find($id);
+
         // $user->followUser;
         // $following = DB::table('follow_users')->where('id_user', '=', $user->id)->get();
         // $user->following=$following;
-        return $this->showData($user);
+        // $data = Employee::where('id_user', '=', $user->id)->get();
+        return response()->json($user);
     }
 
     /**

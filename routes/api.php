@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CafeinController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CityController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Api\PostingController;
 use App\Http\Controllers\Api\ReplyController;
 use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\Api\ProvinceController;
+use App\Models\Aturan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -44,7 +46,7 @@ Route::name('api.')->group(function () {
     // In Group Route
     Route::group(['middleware' => 'jwt.verify'], function () {
         Route::get('logout', [AuthController::class, 'logout'])->name('auth.logout');
-        Route::get('profile', [AuthController::class, 'showProfile'])->name('auth.profile');
+        Route::get('showprofile/{id}', [AuthController::class, 'showProfile'])->name('auth.profile');
 
         Route::group(['prefix' => 'province'], function () {
             Route::get('/', [ProvinceController::class, 'index'])->name('province.index');
@@ -73,6 +75,7 @@ Route::name('api.')->group(function () {
         });
 
         Route::group(['prefix' => 'employee'], function () {
+            Route::get('/', [EmployeeController::class, 'index'])->name('employee.index');
             Route::put('/update/{id}', [EmployeeController::class, 'updateFullname'])->name('employee.update');
         });
 
@@ -108,6 +111,7 @@ Route::name('api.')->group(function () {
             Route::get('/show/{id}', [FollowUserController::class, 'show'])->name('followuser.show');
             Route::get('/followers', [FollowUserController::class, 'followers'])->name('followuser.followers');
             Route::get('/showfollowings', [FollowUserController::class, 'showfollowings'])->name('followuser.showfollowings');
+            Route::post('/follow', [FollowUserController::class, 'follow'])->name('followuser.follow');
         });
         /** This is routes for Regular User
          * ==========================================
@@ -121,21 +125,40 @@ Route::name('api.')->group(function () {
             Route::group(['prefix' => 'posting'], function () {
                 Route::get('/', [PostingController::class, 'index'])->name('posting.index');
                 Route::get('/following', [PostingController::class, 'indexFollowing'])->name('posting.indexFollowing');
-                Route::get('/indexProfile', [PostingController::class, 'indexProfile'])->name('posting.indexProfile');
+                Route::get('/indexProfile/{id}', [PostingController::class, 'indexProfile'])->name('posting.indexProfile');
+                Route::get('/indexProfileAnswer', [PostingController::class, 'indexProfileAnswer'])->name('posting.indexProfileAnswer');
+                Route::get('/downloadDoc/{id}', [PostingController::class, 'downloadDoc'])->name('posting.downloadDoc');
+                Route::get('/showImagePost/{image}', [PostingController::class, 'showImagePost'])->name('posting.showImagePost');
                 Route::get('/profile/{id}', [PostingController::class, 'profile'])->name('posting.profile');
                 Route::get('/show/{id}', [PostingController::class, 'show'])->name('posting.show');
-                Route::get('/detail/{id}', [PostingController::class, 'detailPost'])->name('posting.detailPost');
+                Route::get('/commentDetailPost/{id}', [PostingController::class, 'commentDetailPost'])->name('posting.commentDetailPost');
+                Route::get('/likeDetailPost/{id}', [PostingController::class, 'likeDetailPost'])->name('posting.likeDetailPost');
                 Route::post('/store', [PostingController::class, 'store'])->name('posting.store');
+                Route::get('/indexProfiles/{id}', [PostingController::class, 'indexProfiles'])->name('posting.indexProfiles');
+            });
+            Route::group(['prefix' => 'cafein'], function () {
+                Route::get('/regulasi', [CafeinController::class, 'indexRegulasi'])->name('cafein.indexRegulasi');
+                Route::get('/downloadRegulasi/{id}', [CafeinController::class, 'downloadRegulasi'])->name('cafein.downloadRegulasi');
+                Route::get('/viewRegulasi/{id}', [CafeinController::class, 'viewRegulasi'])->name('cafein.viewRegulasi');
+                Route::get('/media', [CafeinController::class, 'indexMedia'])->name('cafein.indexMedia');
+                Route::get('/viewFileMedia/{id}', [CafeinController::class, 'viewFileMedia'])->name('cafein.viewFileMedia');
+                Route::get('/downloadFileMedia/{id}', [CafeinController::class, 'downloadFileMedia'])->name('cafein.downloadFileMedia');
+                Route::get('/showCover/{coverName}', [CafeinController::class, 'showCover'])->name('cafein.showCover');
+                Route::get('/jenis', [CafeinController::class, 'indexJenis'])->name('cafein.indexJenis');
+                Route::get('/kategori', [CafeinController::class, 'indexKategori'])->name('cafein.indexKategori');
             });
             Route::group(['prefix' => 'reply'], function () {
                 Route::get('/', [ReplyController::class, 'index'])->name('reply.index');
                 Route::get('/show/{id}', [ReplyController::class, 'show'])->name('reply.show');
+                Route::get('/showComment', [ReplyController::class, 'showComment'])->name('reply.showComment');
                 Route::post('/store', [ReplyController::class, 'store'])->name('reply.store');
+                Route::get('/destroy/{id}', [ReplyController::class, 'destroy'])->name('reply.destroy');
             });
             Route::group(['prefix' => 'vote'], function () {
                 Route::get('/', [VoteController::class, 'index'])->name('vote.index');
                 Route::get('/show/{id}', [VoteController::class, 'show'])->name('vote.show');
                 Route::post('/store', [VoteController::class, 'store'])->name('vote.store');
+                Route::get('/rank', [VoteController::class, 'rank'])->name('vote.rank');
             });
             Route::get('/user', function () {
                 return response()->json('Iki user regular_user cak...');

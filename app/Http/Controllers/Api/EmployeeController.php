@@ -19,7 +19,8 @@ class EmployeeController extends ApiController
      */
     public function index()
     {
-        //
+        $employe = Employee::all();
+        return $employe;
     }
 
     /**

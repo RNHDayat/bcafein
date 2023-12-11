@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Vote;
+use App\Models\Posting;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\ApiController;
@@ -60,6 +62,36 @@ class VoteController extends ApiController
             ]
         );
         return response()->json(['message' => 'Vote updated successfully', 'data' => $vote], 200);
+    }
+    public function rank()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees;
+        $rank = Employee::all();
+        $combine = $rank->map(function ($item) {
+            $upvote = Posting::join('votes', 'votes.id_postings', 'postings.id')
+                ->where('postings.id_user', '=', $item->id_user)
+                ->where('votes.vote_status', '=', 1)
+                ->get();
+            $downvote = Posting::join('votes', 'votes.id_postings', 'postings.id')
+                ->where('postings.id_user', '=', $item->id_user)
+                ->where('votes.vote_status', '=', 2)
+                ->get();
+
+            $item->upvote = count($upvote);
+            $item->downvote = count($downvote);
+            $item->point = count($upvote) * 5 - count($downvote);
+            return $item;
+        });
+        // Sort $combine based on the 'total' attribute in descending order
+        $combine = $combine->sortByDesc('point');
+
+        // Add rank to each item based on the sorted order
+        $combine->values()->each(function ($item, $key) {
+            $item->rank = $key + 1;
+        });
+
+        return response()->json(['data' => $combine->values()]);
     }
 
     /**

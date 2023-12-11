@@ -211,10 +211,10 @@ class FollowUserController extends ApiController
         $user = JWTAuth::parseToken()->authenticate();
         $user->employees; // memanggil fungsi relasi
 
-        $user_followers = FollowUser::join('employees','employees.id_user','=','follow_users.following_id')
-                        ->where('follow_users.id_user', '=', $user->id)
-                        ->where('follow_users.follow_status', '=', 1)
-                        ->get();
+        $user_followers = FollowUser::join('employees', 'employees.id_user', '=', 'follow_users.following_id')
+            ->where('follow_users.id_user', '=', $user->id)
+            ->where('follow_users.follow_status', '=', 1)
+            ->get();
         return $user_followers;
     }
 
@@ -287,9 +287,47 @@ class FollowUserController extends ApiController
             $data = [
                 'follow_status' => $request->follow_status,
             ];
+            if ($request->follow_status == "1") {
+                $userFollowing = Employee::find($request->following_id);
+                $userFollow = Employee::find($user->id);
+                $userToken = User::find($request->following_id);
+                $jsonPayload = '{
+                "registration_ids": ["' . $userToken->firebase_token . '"],
+                "notification": {
+                    "title": "' . $userFollowing->nickname . '",
+                    "body": "' . $userFollow->nickname . ' mulai mengikuti anda"
+                    
+                }
+            }';
+
+                $curl = curl_init();
+
+                curl_setopt_array($curl, array(
+                    CURLOPT_URL => 'https://fcm.googleapis.com/fcm/send',
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => '',
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 0,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => 'POST',
+                    CURLOPT_POSTFIELDS => $jsonPayload,
+                    CURLOPT_HTTPHEADER => array(
+                        'Authorization: key=AAAADUkxPv0:APA91bENKeCCCkZ6iCC0K3s_U-CsZY5lU7cdzIEvbXkone4ctccXaJ3hMAsH8zLqnzNFjyaH2Dgx7gCbSRUk2XXL5cybv1kETfLN5SeuyMRMuU9OeTVjE07QX9ycNdzK_BxibbIvjJcn',
+                        'Content-Type: application/json'
+                    ),
+                ));
+
+                $response = curl_exec($curl);
+
+                curl_close($curl);
+                echo $response;
+            }
+
 
             // Update atau create data
             $follow = FollowUser::updateOrCreate($identifier, $data);
+            // $follow->save();
             // $user->save();
             return $this->showData($follow, 200);
         }
@@ -300,9 +338,9 @@ class FollowUserController extends ApiController
         $user->employees; // memanggil fungsi relasi
 
         $user_followers = FollowUser::join('employees', 'employees.id_user', '=', 'follow_users.id_user')
-                        ->where('follow_users.following_id', '=', $user->id)
-                        ->where('follow_status', '=', 1)
-                        ->get();
+            ->where('follow_users.following_id', '=', $user->id)
+            ->where('follow_status', '=', 1)
+            ->get();
         return $user_followers;
     }
 

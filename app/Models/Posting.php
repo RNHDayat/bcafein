@@ -19,12 +19,11 @@ class Posting extends Model
     protected $primaryKey = 'id';
     protected $fillable = [
         'id_user',
-        'id_credential',
-        'id_category',
+        'id_knowfield',
         'title',
-        'title_slug',
         'description',
         'image',
+        'doc',
         'status',
     ];
 }
