@@ -38,13 +38,15 @@ Route::name('api.')->group(function () {
     Route::post('createAccount', [AuthController::class, 'createAccount'])->name('createAccount');
     Route::post('generateKodeVerifikasi', [AuthController::class, 'generateKodeVerifikasi'])->name('generateKodeVerifikasi');
     Route::post('setPass/{token}', [AuthController::class, 'changePassword'])->name('changePassword');
-
+    
     Route::get('showUser/{id}', [EmployeeController::class, 'show'])->name('showUser');
     Route::get('verifyEmail/{tokenMail}', [AuthController::class, 'verifyEmail'])->name('verifyEmail');
     Route::get('verifyEmailManual/{email}', [AuthController::class, 'verifyEmailManual'])->name('verifyEmailManual');
-
+    
     // In Group Route
     Route::group(['middleware' => 'jwt.verify'], function () {
+        Route::post('updatePassword', [AuthController::class, 'updatePassword'])->name('updatePassword');
+        Route::post('validatepassword', [AuthController::class, 'validatePassword'])->name('validatePassword');
         Route::get('logout', [AuthController::class, 'logout'])->name('auth.logout');
         Route::get('showprofile/{id}', [AuthController::class, 'showProfile'])->name('auth.profile');
 

@@ -168,6 +168,7 @@ class AuthController extends ApiController
 
         $user = User::where('remember_token', '=', $splitToken[1])->first();
         $user->remember_token = null;
+        $user->firebase_token = null;
         $user->save();
         return $this->showMessage('Logout successfully', 200);
     }
@@ -192,12 +193,14 @@ class AuthController extends ApiController
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors(), 400);
         } else {
-            $password = Hash::make(env('MIX_SECRET_KEY_ENCRYPTION'));
+            // $password = Hash::make(env('MIX_SECRET_KEY_ENCRYPTION'));
+            $password = Hash::make($request->password);
             $user = User::create([
                 'username' => $request->username,
                 'account_name' => $request->nickname,
                 'email' => $request->email,
                 'password' => $password,
+                'status' => 1
             ]);
 
             $employee = Employee::create([
@@ -219,9 +222,10 @@ class AuthController extends ApiController
             $verifyEmail = DB::table('verify_email')->insert([
                 'id_user' => $user->id,
                 'email' => $request->email,
-                'token' => $token
+                'token' => $token,
+                'email_isVerified' => 1
             ]);
-            Mail::to($request->email)->send(new CreateAccount($request->email, $request->fullname, $request->nickname, $token));
+            // Mail::to($request->email)->send(new CreateAccount($request->email, $request->fullname, $request->nickname, $token));
 
             // if ($saveStorage == true) {
             //     Employee::find($employee->id)->update([
@@ -451,5 +455,36 @@ class AuthController extends ApiController
             $error['user'] = ['User is activated'];
             return [200, $error];
         }
+    }
+
+    public function validatePassword(Request $request)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        // $id=User::where('id',$user->id)->first();
+        $pass = Hash::make($request->password);
+        $encrypt = new Encryption();
+        $password = $encrypt->decrypt($request->password, config('secretKey.secretKey'));
+        // $cek = User::where('password','=',$pass);
+        // Mengecek apakah password cocok
+        if (!Hash::check($password, $user->password)) {
+            return response()->json(['msg' => 'Password tidak cocok.'], 400);
+        }
+
+        // Jika password cocok
+        return response()->json(['msg' => 'Password valid.'], 200);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $encrypt = new Encryption();
+        $password = $encrypt->decrypt($request->password, config('secretKey.secretKey'));
+
+        $data = User::where('id', '=', $user->id)->first();
+        if (!$data->count()) {
+            return response()->json(['msg' => 'Tidak ada data'], 400);
+        }
+        $dataUser = User::where('id', '=', $user->id)->update(['password' => Hash::make($password)]);
+        return response()->json(['msg' => 'Password berhasil diubah.'], 200);
     }
 }
