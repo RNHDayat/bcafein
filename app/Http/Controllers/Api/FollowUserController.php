@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
+use App\Models\Employee;
 use App\Models\FollowUser;
 use Illuminate\Http\Request;
+use App\Models\Notifications;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\ApiController;
-use App\Models\Employee;
 use Illuminate\Support\Facades\Validator;
 
 class FollowUserController extends ApiController
@@ -287,18 +288,39 @@ class FollowUserController extends ApiController
             $data = [
                 'follow_status' => $request->follow_status,
             ];
+            $userFollowing = Employee::find($request->following_id);
+            $userFollow = Employee::find($user->id);
+            $userToken = User::find($request->following_id);
+            $jsonPayload = '{
+            "registration_ids": ["' . $userToken->firebase_token . '"],
+            "notification": {
+                "title": "' . $userFollowing->nickname . '",
+                "body": "' . $userFollow->nickname . ' mulai mengikuti anda"
+                
+            }
+        }';
+            // Mendekode JSON menjadi array PHP
+            $payload = json_decode($jsonPayload, true);
+
+            // Mengambil nilai dari properti "body"
+            $title = $payload['notification']['title'];
+            $body = $payload['notification']['body'];
             if ($request->follow_status == "1") {
-                $userFollowing = Employee::find($request->following_id);
-                $userFollow = Employee::find($user->id);
-                $userToken = User::find($request->following_id);
-                $jsonPayload = '{
-                "registration_ids": ["' . $userToken->firebase_token . '"],
-                "notification": {
-                    "title": "' . $userFollowing->nickname . '",
-                    "body": "' . $userFollow->nickname . ' mulai mengikuti anda"
-                    
+
+                // Notifications::create(['id_user' => $request->following_id, 'title' => $title, 'body' => $body,]);
+                // Pengecekan apakah data sudah ada berdasarkan id_user dan title
+                $notification = Notifications::firstOrNew([
+                    'id_user' => $request->following_id,
+                    'body' => $body,
+                ]);
+
+                // Set nilai body jika data baru dibuat
+                if (!$notification->exists) {
+                    $notification->id_user_follow = $user->id;
+                    $notification->title = $title;
+                    $notification->save();
+                    // return response()->json(['message' => 'Notification added successfully']);
                 }
-            }';
 
                 $curl = curl_init();
 
@@ -322,6 +344,8 @@ class FollowUserController extends ApiController
 
                 curl_close($curl);
                 echo $response;
+            } else if ($request->follow_status == "3") {
+                Notifications::where('id_user', '=', $request->following_id)->where('body', '=', $body)->delete();
             }
 
 

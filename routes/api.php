@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\FollowUserController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\FollowCategoryController;
 use App\Http\Controllers\Api\KnowFieldController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PostingController;
 use App\Http\Controllers\Api\ReplyController;
 use App\Http\Controllers\Api\VoteController;
@@ -50,6 +51,10 @@ Route::name('api.')->group(function () {
         Route::get('logout', [AuthController::class, 'logout'])->name('auth.logout');
         Route::get('showprofile/{id}', [AuthController::class, 'showProfile'])->name('auth.profile');
 
+        Route::group(['prefix' => 'notif'], function () {
+            Route::get('/', [NotificationController::class, 'index'])->name('notif.index');
+            Route::post('update/{id}', [NotificationController::class, 'update'])->name('notif.update');
+        });
         Route::group(['prefix' => 'province'], function () {
             Route::get('/', [ProvinceController::class, 'index'])->name('province.index');
             Route::get('/show/{id}', [ProvinceController::class, 'show'])->name('province.show');

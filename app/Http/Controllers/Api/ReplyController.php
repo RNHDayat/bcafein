@@ -80,7 +80,7 @@ class ReplyController extends ApiController
         $coment = Posting::where('id_user', '=', $user->id)
             ->join('replies', 'replies.id_postings', '=', 'postings.id')
             ->where('replies.toAnswer_posting', '!=', null)
-            // ->orderBy('postings.created_at', 'desc')
+            ->orderBy('postings.created_at', 'desc')
             ->get();
         // Menggabungkan postingan lain sesuai dengan 'toAnswer_posting'
         foreach ($coment as $comment) {
