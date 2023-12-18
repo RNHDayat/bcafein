@@ -170,7 +170,7 @@ class AuthController extends ApiController
         $user->remember_token = null;
         $user->firebase_token = null;
         $user->save();
-        return $this->showMessage('Logout successfully', 200);
+        return $this->showMessage('Logout berhasil', 200);
     }
 
     /**
@@ -327,16 +327,30 @@ class AuthController extends ApiController
      */
     public function showProfile($id)
     {
-        // $user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate();
         // $user->employees;
+        $followme = FollowUser::where('id_user', $id)->where('following_id', $user->id)->first();
+        $followuser = FollowUser::where('id_user', $user->id)->where('following_id', $id)->first();
+        $userData = User::with('employees')->find($id);
+        if ($user->id != $id) {
+            if ($followme) {
+                $userData->follow_me = $followme->follow_status;
+            } else {
+                $userData->follow_me = 0;
+            }
+            if ($followuser) {
+                $userData->follow_status = $followuser->follow_status;
+            } else {
+                $userData->follow_status = 0;
+            }
+        }
 
-        $user = User::with('employees')->find($id);
 
         // $user->followUser;
         // $following = DB::table('follow_users')->where('id_user', '=', $user->id)->get();
         // $user->following=$following;
         // $data = Employee::where('id_user', '=', $user->id)->get();
-        return response()->json($user);
+        return response()->json($userData);
     }
 
     /**
@@ -486,5 +500,12 @@ class AuthController extends ApiController
         }
         $dataUser = User::where('id', '=', $user->id)->update(['password' => Hash::make($password)]);
         return response()->json(['msg' => 'Password berhasil diubah.'], 200);
+    }
+
+    protected function cekToken()
+    {
+        return response()->json([
+            'expired_token' => JWTAuth::parseToken()->factory()->getTTL(),
+        ]);
     }
 }

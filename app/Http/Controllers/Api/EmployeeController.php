@@ -53,7 +53,7 @@ class EmployeeController extends ApiController
     public function show($id, Request $request)
     {
         $level = 999;
-        if(request()->has('level')){
+        if (request()->has('level')) {
             $validator = Validator::make($request->all(), [
                 'level' => 'string|min:3|max:3000|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
             ]);
@@ -113,15 +113,16 @@ class EmployeeController extends ApiController
             return $this->errorResponse($validator->errors(), 400);
         } else {
             // Check if the requested data is duplicate
-            $duplikasi = Employee::where('id', '=', $user->id)->where('fullname','=',$request->fullname)->get();
+            $duplikasi = Employee::where('id_user', '=', $user->id)->where('fullname', '=', $request->fullname)->first();
 
-            if ($duplikasi->count() == 0) {
-                $employee = new Employee();
-                $employee->id = $user->id;
-                $employee->fullname = $request->fullname;
-                $employee->save();
+            if (!$duplikasi) {
+                Employee::where('id_user', '=', $user->id)->update(["fullname" => $request->fullname]);
+                return response()->json(['msg' => 'Berhasil memperbarui nama'], 200);
+                // $employee->id = $user->id;
+                // $employee->fullname = $request->fullname;
+                // $employee->save();
             } else {
-                return $this->errorResponse("Duplicate data! The requested education data is already exists", 400);
+                return response()->json(['msg' => 'Harap ubah terlebih dahulu'], 400);
             }
         }
     }

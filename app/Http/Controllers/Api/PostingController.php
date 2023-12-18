@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\User;
 use App\Models\Vote;
+use ReflectionClass;
 use App\Models\Reply;
 use App\Models\Posting;
 use App\Models\Employee;
@@ -13,8 +14,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\ApiController;
-use Illuminate\Support\Facades\Validator;
 
+use function PHPUnit\Framework\isEmpty;
+use Illuminate\Support\Facades\Validator;
 
 class PostingController extends ApiController
 {
@@ -105,18 +107,33 @@ class PostingController extends ApiController
 
         // $combinedData = $cekVoting->map(function ($item) {
         // $vote = Vote::where('id_postings', $id)->get();
+        if (count($vote) == 0) {
+            // Create an empty map with field names as keys
+            $data = [
+                'id_user' => null,
+                'id_postings' => null,
+                'vote_status' => null,
+                'upvote' => null,
+                'downvote' => null,
+            ];
 
-        $up = Vote::where('id_postings', $id)
-            ->where('vote_status', '1')
-            ->get();
-        $down = Vote::where('id_postings', $id)
-            ->where('vote_status', '2')
-            ->get();
-        $vote[0]->upvote = count($up);
-        $vote[0]->downvote = count($down);
+            // Return the map as JSON
+            return response()->json(['data' => $data]);
+        } else {
+
+            $up = Vote::where('id_postings', $id)
+                ->where('vote_status', '1')
+                ->get();
+            $down = Vote::where('id_postings', $id)
+                ->where('vote_status', '2')
+                ->get();
+            $vote[0]->upvote = count($up);
+            $vote[0]->downvote = count($down);
+            return $this->showData($vote[0]);
+        }
+
         //     return $item;
         // });
-        return $this->showData($vote[0]);
     }
     public function commentDetailPost($id)
     {
@@ -131,6 +148,34 @@ class PostingController extends ApiController
         // }
         return $data;
     }
+    public function deleteCommentDetailPost($id)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees; // memanggil fungsi relasi
+        $data = Posting::where('postings.id', '=', $id)
+            ->get();
+        $data = $this->cekReplyData($data);
+        $data = $this->deleteReplies($data);
+
+        return $data;
+    }
+    private function deleteReplies($replies)
+    {
+        foreach ($replies as $reply) {
+            if (!empty($reply->repliedData)) {
+                $this->deleteReplies($reply->repliedData);
+            }
+
+            $ada = Reply::where('id_postings', $reply->id)->first();
+            if ($ada) {
+                $ada->delete();
+            }
+            Posting::where('id', $reply->id)->delete();
+        }
+        return response()->json(['msg' => 'Postingan atau komentar berhasil dihapus'], 200);
+    }
+
+
     private function cekReplyData($data)
     {
         $lariknya = array();
@@ -147,18 +192,10 @@ class PostingController extends ApiController
                     ->select('employees.nickname')->get();
                 $appendData[$j]->toAnswer_posting = $dataUser[0]->nickname;
             }
-            // if ($appendData[$i]->toAnswer_posting != null) {
-            // $cek = $appendData[$i]->toAnswer_posting;
-            // }
 
             $appendData = $this->cekReplyData($appendData);
             array_push($lariknya, $appendData);
             $data[$i]->repliedData = $appendData;
-            // $data[$i]->repliedData->toAnswer_posting=8;
-            // if ($data[$i]->repliedData[$i]->toAnswer_posting) {
-            // $repliedPost = Employee::where('id_user', '=', $data[$i]->repliedData[$i]->toAnswer_posting)->select('nickname');
-            // $data[$i]->repliedData[$i]->nama = $repliedPost;
-            // }
         }
         return $data;
     }

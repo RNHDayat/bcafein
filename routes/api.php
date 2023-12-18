@@ -46,6 +46,7 @@ Route::name('api.')->group(function () {
     
     // In Group Route
     Route::group(['middleware' => 'jwt.verify'], function () {
+        Route::get('cekToken', [AuthController::class, 'cekToken'])->name('cekToken');
         Route::post('updatePassword', [AuthController::class, 'updatePassword'])->name('updatePassword');
         Route::post('validatepassword', [AuthController::class, 'validatePassword'])->name('validatePassword');
         Route::get('logout', [AuthController::class, 'logout'])->name('auth.logout');
@@ -74,7 +75,7 @@ Route::name('api.')->group(function () {
         });
 
         Route::group(['prefix' => 'credential'], function () {
-            Route::get('/indexUser', [CredentialController::class, 'indexUser'])->name('credential.user.index');
+            Route::get('/indexUser/{id}', [CredentialController::class, 'indexUser'])->name('credential.index');
             Route::get('/show/{id}', [CredentialController::class, 'show'])->name('credential.show');
             Route::post('/store', [CredentialController::class, 'store'])->name('credential.store');
             Route::post('/update/{id}', [CredentialController::class, 'update'])->name('credential.update');
@@ -83,7 +84,7 @@ Route::name('api.')->group(function () {
 
         Route::group(['prefix' => 'employee'], function () {
             Route::get('/', [EmployeeController::class, 'index'])->name('employee.index');
-            Route::put('/update/{id}', [EmployeeController::class, 'updateFullname'])->name('employee.update');
+            Route::post('/updateFullname', [EmployeeController::class, 'updateFullname'])->name('employee.update');
         });
 
         Route::group(['prefix' => 'knowField'], function () {
@@ -115,9 +116,10 @@ Route::name('api.')->group(function () {
             Route::get('/unfolthem', [FollowUserController::class, 'indexUnFolTHEM'])->name('followuser.indexUnFolTHEM');
             Route::get('/unfolme', [FollowUserController::class, 'indexUnFolME'])->name('followuser.indexUnFolME');
             Route::get('/following/{id}', [FollowUserController::class, 'following'])->name('followuser.following');
-            Route::get('/show/{id}', [FollowUserController::class, 'show'])->name('followuser.show');
+            Route::get('/show/{following}/{followed}', [FollowUserController::class, 'show'])->name('followuser.show');
             Route::get('/followers', [FollowUserController::class, 'followers'])->name('followuser.followers');
-            Route::get('/showfollowings', [FollowUserController::class, 'showfollowings'])->name('followuser.showfollowings');
+            Route::get('/showfollowings/{id}', [FollowUserController::class, 'showfollowings'])->name('followuser.showfollowings');
+            Route::get('/showfollowers/{id}', [FollowUserController::class, 'showfollowers'])->name('followuser.showfollowers');
             Route::post('/follow', [FollowUserController::class, 'follow'])->name('followuser.follow');
         });
         /** This is routes for Regular User
@@ -139,6 +141,7 @@ Route::name('api.')->group(function () {
                 Route::get('/profile/{id}', [PostingController::class, 'profile'])->name('posting.profile');
                 Route::get('/show/{id}', [PostingController::class, 'show'])->name('posting.show');
                 Route::get('/commentDetailPost/{id}', [PostingController::class, 'commentDetailPost'])->name('posting.commentDetailPost');
+                Route::post('/deleteCommentDetailPost/{id}', [PostingController::class, 'deleteCommentDetailPost'])->name('posting.deleteCommentDetailPost');
                 Route::get('/likeDetailPost/{id}', [PostingController::class, 'likeDetailPost'])->name('posting.likeDetailPost');
                 Route::post('/store', [PostingController::class, 'store'])->name('posting.store');
                 Route::get('/indexProfiles/{id}', [PostingController::class, 'indexProfiles'])->name('posting.indexProfiles');

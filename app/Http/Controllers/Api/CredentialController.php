@@ -43,13 +43,13 @@ class CredentialController extends ApiController
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexUser()
+    public function indexUser($id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
-        $user->employees; // memanggil fungsi relasi
+        // $user = JWTAuth::parseToken()->authenticate();
+        // $user->employees; // memanggil fungsi relasi
 
         $data = new Credential();
-        $data = $data->where('id_employee', '=', $user->employees->id);
+        $data = $data->where('id_employee', '=', $id);
         if (request()->has('query')) {
             $q = request()->get('query');
             $data = $data->where('description', 'LIKE', '%' . $q . '%');
@@ -100,10 +100,10 @@ class CredentialController extends ApiController
         } else {
             // Check if the requested data is duplicate
             $duplikasi = Credential::where('id_employee', '=', $user->employees->id)
-                        ->where('type', '=', $request->type)
-                        ->where('description', '=', $request->description)
-                        ->get();
-                        
+                ->where('type', '=', $request->type)
+                ->where('description', '=', $request->description)
+                ->get();
+
 
             if ($duplikasi->count() == 0) {
                 $credential = new Credential();

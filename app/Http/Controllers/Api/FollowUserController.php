@@ -226,7 +226,7 @@ class FollowUserController extends ApiController
      * @param  integer $following sebagai yang mengikuti, data 'id_users'
      * @return \Illuminate\Http\Response
      */
-    public function show($followed, $following)
+    public function show($following, $followed)
     {
         $data = FollowUser::where('id_user', '=', $following)->where('following_id', '=', $followed)->get();
         if ($data->count() == 0) {
@@ -321,9 +321,7 @@ class FollowUserController extends ApiController
                     $notification->save();
                     // return response()->json(['message' => 'Notification added successfully']);
                 }
-
                 $curl = curl_init();
-
                 curl_setopt_array($curl, array(
                     CURLOPT_URL => 'https://fcm.googleapis.com/fcm/send',
                     CURLOPT_RETURNTRANSFER => true,
@@ -356,14 +354,25 @@ class FollowUserController extends ApiController
             return $this->showData($follow, 200);
         }
     }
-    public function showfollowings()
+    public function showfollowers($id)
     {
         $user = JWTAuth::parseToken()->authenticate();
         $user->employees; // memanggil fungsi relasi
 
         $user_followers = FollowUser::join('employees', 'employees.id_user', '=', 'follow_users.id_user')
-            ->where('follow_users.following_id', '=', $user->id)
-            ->where('follow_status', '=', 1)
+            ->where('follow_users.following_id', '=', $id)
+            ->where('follow_users.follow_status', '=', 1)
+            ->get();
+        return $user_followers;
+    }
+    public function showfollowings($id)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees; // memanggil fungsi relasi
+
+        $user_followers = FollowUser::join('employees', 'employees.id_user', '=', 'follow_users.following_id')
+            ->where('follow_users.id_user', '=', $id)
+            ->where('follow_users.follow_status', '=', 1)
             ->get();
         return $user_followers;
     }
