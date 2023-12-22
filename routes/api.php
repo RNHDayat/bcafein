@@ -144,6 +144,7 @@ Route::name('api.')->group(function () {
                 Route::post('/deleteCommentDetailPost/{id}', [PostingController::class, 'deleteCommentDetailPost'])->name('posting.deleteCommentDetailPost');
                 Route::get('/likeDetailPost/{id}', [PostingController::class, 'likeDetailPost'])->name('posting.likeDetailPost');
                 Route::post('/store', [PostingController::class, 'store'])->name('posting.store');
+                Route::post('/update/{id}', [PostingController::class, 'update'])->name('posting.update');
                 Route::get('/indexProfiles/{id}', [PostingController::class, 'indexProfiles'])->name('posting.indexProfiles');
             });
             Route::group(['prefix' => 'cafein'], function () {

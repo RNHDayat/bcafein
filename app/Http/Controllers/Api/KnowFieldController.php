@@ -113,6 +113,7 @@ class KnowFieldController extends ApiController
                 $knowledge_field->codeIlmu = $request->codeIlmu;
                 $knowledge_field->name = $request->name;
                 $knowledge_field->id_user_propose = $user->id;
+                $knowledge_field->validation = 1;
                 $knowledge_field->save();
                 return $knowledge_field;
 
@@ -296,14 +297,14 @@ class KnowFieldController extends ApiController
 
         // Transform "id_knowField" into arrays if not null
         foreach ($data as $item) {
-            if ($item->id_knowField !== null) {
-                $item->id_knowField = json_decode($item->id_knowField);
-            }
+            // if ($item->id_knowfield !== null) {
+                $item->id_knowfield = json_decode($item->id_knowfield);
+            // }
         }
 
         // Filter data based on "id_knowField" that matches $codeIlmu
         $filteredData = $data->filter(function ($item) use ($codeIlmu) {
-            return in_array($codeIlmu, $item->id_knowField);
+            return in_array($codeIlmu, $item->id_knowfield ?? []);
         });
 
         if ($filteredData->isEmpty()) {

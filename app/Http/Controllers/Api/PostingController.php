@@ -418,20 +418,10 @@ class PostingController extends ApiController
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors(), 400);
         } else {
-            // $credential = Credential::where('id_employee', '=', $user->employees->id)
-            //     ->where('type', '=', 0)->first();
-            // if ($duplikasi->count() == 0) {
+       
             $posting = new Posting();
             $posting->id_user = $user->employees->id;
-            // $posting->id_credential = $credential->id;
-            // $tag = json_decode($request->id_knowField) ?? 0;
-            //cek ada tag or  tidak
-            // if (count($tag) == 0) {
-            //     $posting->id_knowField = null;
-            // } else {
             $posting->id_knowField = $request->id_knowField ?? null;
-            // }
-            // $posting->id_credential = $user->employees->id;
             $posting->title = $request->title;
             $posting->description = $request->description;
 
@@ -459,6 +449,54 @@ class PostingController extends ApiController
 
 
             $posting->save();
+            return response()->json($posting);
+        }
+    }
+    public function update(Request $request,$id)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $user->employees; // memanggil fungsi relasi
+        // Validation Requests
+        $validator = Validator::make($request->all(), [
+            'title',
+            'description' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif',
+            'doc' => 'mimes:pdf,doc',
+        ]);
+        if ($validator->fails()) {
+            return $this->errorResponse($validator->errors(), 400);
+        } else {
+       
+            $posting = Posting::find($id);
+            $posting->id_user = $user->employees->id;
+            $posting->id_knowField = $request->id_knowField ?? null;
+            $posting->title = $request->title;
+            $posting->description = $request->description;
+
+            //gambar
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('posts', $imageName, 'public');
+
+                $imagePath = 'storage/posts/' . $imageName;
+
+                // Simpan informasi gambar dalam database
+                $posting->image = $imageName;
+            }
+            if ($request->hasFile('doc')) {
+                $doc = $request->file('doc');
+                $docName = time() . '.' . $doc->getClientOriginalExtension();
+                $doc->storeAs('posts', $docName, 'public');
+
+                $docPath = 'storage/posts/' . $docName;
+
+                // Simpan informasi gambar dalam database
+                $posting->doc = $docName;
+            }
+
+
+            $posting->update();
             return response()->json($posting);
         }
     }
@@ -548,10 +586,10 @@ class PostingController extends ApiController
      * @param  \App\Models\Posting  $posting
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Posting $posting)
-    {
-        //
-    }
+    // public function update(Request $request, Posting $posting)
+    // {
+    //     //
+    // }
 
     /**
      * Remove the specified resource from storage.

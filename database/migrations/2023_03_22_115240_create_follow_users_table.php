@@ -19,7 +19,6 @@ class CreateFollowUsersTable extends Migration
             $table->unsignedBigInteger('id_user'); //get a user id (sang pelaku)
             $table->unsignedBigInteger('following_id'); //get a user id (mengikuti apa???)
             $table->integer('follow_status')->default(FollowUser::isFOLLOWED)->comment('0=onhold,1=follow,2=blocked,3=unfol');
-
             // RELATION
             $table->foreign('id_user')->references('id')->on('users')->onDelete('CASCADE');
             $table->foreign('following_id')->references('id')->on('users')->onDelete('CASCADE');

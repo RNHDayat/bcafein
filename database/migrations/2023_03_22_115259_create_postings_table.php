@@ -15,21 +15,15 @@ class CreatePostingsTable extends Migration
     {
         Schema::create('postings', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_user'); //get a users id
-            // $table->unsignedBigInteger('id_credential'); //get a credential id
-            // $table->unsignedBigInteger('id_category');//get a category id
-            // $table->string('title')->unique();
+            $table->unsignedBigInteger('id_user'); 
             $table->string('id_knowfield')->nullable();
             $table->string('title');
             $table->text('description');
             $table->string('image')->nullable();
             $table->string('doc')->nullable();
             $table->integer('status')->default(1)->comment('0=hidden,1=active,2=draft,3=best,4=blocked');
-
             // RELATION
             $table->foreign('id_user')->references('id')->on('users')->onDelete('CASCADE');
-            // $table->foreign('id_credential')->references('id')->on('credentials')->onDelete('CASCADE');
-            // $table->foreign('id_category')->references('id')->on('categories')->onDelete('CASCADE');
             $table->timestamps();
         });
     }
