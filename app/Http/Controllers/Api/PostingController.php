@@ -418,7 +418,7 @@ class PostingController extends ApiController
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors(), 400);
         } else {
-       
+
             $posting = new Posting();
             $posting->id_user = $user->employees->id;
             $posting->id_knowField = $request->id_knowField ?? null;
@@ -452,7 +452,7 @@ class PostingController extends ApiController
             return response()->json($posting);
         }
     }
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
         $user = JWTAuth::parseToken()->authenticate();
         $user->employees; // memanggil fungsi relasi
@@ -466,7 +466,7 @@ class PostingController extends ApiController
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors(), 400);
         } else {
-       
+
             $posting = Posting::find($id);
             $posting->id_user = $user->employees->id;
             $posting->id_knowField = $request->id_knowField ?? null;
@@ -490,7 +490,6 @@ class PostingController extends ApiController
                 $doc->storeAs('posts', $docName, 'public');
 
                 $docPath = 'storage/posts/' . $docName;
-
                 // Simpan informasi gambar dalam database
                 $posting->doc = $docName;
             }

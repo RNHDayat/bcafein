@@ -72,5 +72,8 @@ class Kernel extends HttpKernel
         'dominants_kader' => \App\Http\Middleware\LeaderMiddleware::class,
         'regular_user' => \App\Http\Middleware\RegularUserMiddleware::class,
         'admins' => \App\Http\Middleware\AdminMiddleware::class,
+        'isAdmin' => \App\Http\Middleware\IsAdmin::class,
+        \RealRashid\SweetAlert\ToSweetAlert::class,
+        'revalidate' => \App\Http\Middleware\RevalidateBackHistory::class,
     ];
 }

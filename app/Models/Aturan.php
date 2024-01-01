@@ -17,7 +17,7 @@ class Aturan extends Model
         'nomor',
         'tahun',
         'tgl_terbit',
-        'short_descc',
+        'short_desc',
         'keterangan',
         'doc',
         'oleh',
