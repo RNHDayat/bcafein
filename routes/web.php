@@ -73,7 +73,7 @@ Route::group(['middleware' => 'revalidate'], function () {
         Route::post('/updateAturan/{id}', [AturanController::class, 'update'])->name('update.aturan');
         Route::delete('/deleteAturan/{id}', [AturanController::class, 'destroy'])->name('delete.aturan');
 
-        //aturan
+        //media
         Route::get('/media', [MediaController::class, 'index'])->name('index.media');
         Route::get('/actionMedia', [MediaController::class, 'action'])->name('action.media');
         Route::get('/getKategori', [MediaController::class, 'getKategori'])->name('getKategori.media');
@@ -85,14 +85,12 @@ Route::group(['middleware' => 'revalidate'], function () {
         Route::post('/updateMedia/{id}', [MediaController::class, 'update'])->name('update.media');
         Route::delete('/deleteMedia/{id}', [MediaController::class, 'destroy'])->name('delete.media');
 
-        //aturan
+        //pengguna
         Route::get('/pengguna', [PenggunaController::class, 'index'])->name('index.pengguna');
         Route::get('/actionPengguna', [PenggunaController::class, 'action'])->name('action.pengguna');
         Route::get('/getKategori', [PenggunaController::class, 'getKategori'])->name('getKategori.pengguna');
         Route::get('/createPengguna', [PenggunaController::class, 'create'])->name('create.pengguna');
         Route::post('/storePengguna', [PenggunaController::class, 'store'])->name('store.pengguna');
-        Route::get('/downloadCover/{cover}', [PenggunaController::class, 'downloadCover'])->name('downloadCover.pengguna');
-        Route::get('/downloadDoc/{doc}', [PenggunaController::class, 'downloadDoc'])->name('downloadDoc.pengguna');
         Route::get('/showPengguna/{id}', [PenggunaController::class, 'show'])->name('show.pengguna');
         Route::post('/updatePengguna/{id}', [PenggunaController::class, 'update'])->name('update.pengguna');
         Route::delete('/deletePengguna/{id}', [PenggunaController::class, 'destroy'])->name('delete.pengguna');

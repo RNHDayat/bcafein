@@ -21,6 +21,8 @@ class CreateKnowFieldsTable extends Migration
             $table->boolean('validation')->default(knowField::isUNVALIDATED);
             $table->unsignedBigInteger('id_user_propose')->nullable(); //get a user id
             $table->unsignedBigInteger('id_user_validator')->nullable(); //get a user id
+            $table->string('id_user_follow');
+            $table->string('user_status_follow');
 
             // RELATION
             $table->foreign('id_user_propose')->references('id')->on('users')->onDelete('CASCADE');

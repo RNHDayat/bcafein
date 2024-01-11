@@ -38,6 +38,7 @@
                                 <th scope="col">Aksi</th>
                             </tr>
                         </thead>
+                        
                         <tbody id="data-media"></tbody>
                        
                     </table>

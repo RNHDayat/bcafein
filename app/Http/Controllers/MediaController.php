@@ -15,7 +15,7 @@ class MediaController extends Controller
         $title = 'Hapus media!';
         $text = "Apakah anda yakin ingin menghapus ini?";
         confirmDelete($title, $text);
-        return view('media.media', compact('media'));
+        return view('media.media');
     }
 
     function action(Request $request)
@@ -26,36 +26,33 @@ class MediaController extends Controller
             $perPage = 10; // Anda dapat mengatur jumlah data per halaman sesuai kebutuhan
 
             if ($query != '') {
-                $data = Media::where('nama_media', 'like', '%' . $query . '%')
-                    ->orWhere('headline', 'like', '%' . $query . '%')
+                $data = Media::where('headline', 'like', '%' . $query . '%')
                     ->paginate($perPage);
             } else {
                 $data = Media::paginate($perPage);
             }
-
-            $total_row = $data->total();
             $total_row = $data->total();
             if ($total_row > 0) {
                 foreach ($data as $index => $row) {
-                    $coverLink = $row->cover ? '<a href="' . route('downloadCover.media', $row->cover) . '">' . $row->cover . '</a>' : '-';
+                    $coverLink = $row->cover != null ? '<a href="' . route('downloadCover.media', $row->cover) . '">' . $row->cover . '</a>' : '-';
                     $attachmentLink = $row->attachment ? '<a href="' . route('downloadDoc.media', $row->attachment) . '">' . $row->attachment . '</a>' : '-';
 
                     $output .= '
-            <tr>
-            <td>' . ($data->firstItem() + $index) . '</td>
-            <td>' . $row->nama_media . '</td>
-            <td>' . $row->headline . '</td>
-            <td>' . $row->no_volume . '</td>
-            <td>' . $row->tahun . '</td>
-            <td>' . $coverLink . '</td>
-            <td>' . $attachmentLink . '</td>
-            <td>' . $row->oleh . '</td>
-            <td> 
-                <a href="' . route('show.media', $row->id) . '" class="btn btn-success btn-sm m-1"><i class="fas fa-edit" style="color: #ffffff;"></i> Edit</a>
-                <a href="' . route('delete.media', $row->id) . '" data-confirm-delete="true" class="btn btn-danger btn-sm"><i class="fas fa-trash" style="color: #ffffff;"></i> Hapus</a>
-            </td>
-            </tr>
-        ';
+                        <tr>
+                        <td>' . ($data->firstItem() + $index) . '</td>
+                        <td>' . $row->nama_media . '</td>
+                        <td>' . $row->headline . '</td>
+                        <td>' . $row->no_volume . '</td>
+                        <td>' . $row->tahun . '</td>
+                        <td>' . $coverLink . '</td>
+                        <td>' . $attachmentLink . '</td>
+                        <td>' . $row->oleh . '</td>
+                        <td> 
+                        <a href="' . route('show.media', $row->id) . '" class="btn btn-success btn-sm m-1"><i class="fas fa-edit" style="color: #ffffff;"></i> Edit</a>
+                        <a href="' . route('delete.media', $row->id) . '" data-confirm-delete="true" class="btn btn-danger btn-sm"><i class="fas fa-trash" style="color: #ffffff;"></i> Hapus</a>
+                    </td>
+                        </tr>
+                    ';
                 }
             } else {
                 $output = '

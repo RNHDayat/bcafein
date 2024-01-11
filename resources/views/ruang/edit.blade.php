@@ -5,18 +5,14 @@
         <h1 class="h3 mb-0 text-gray-800">Ruang</h1>
 
     </div>
-    <div class="col">
-        <a href="{{ route('index.ruang') }}">
-            <h6>Back</h6>
-        </a>
-    </div>
+    
     <div class="col col-md-6 mb-3">
         <div class="card border-left-primary shadow h-100 ">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                            Tambah Data Ruang
+                            Edit Data Ruang
                         </div>
 
                     </div>
@@ -31,7 +27,10 @@
                         <input type="text" name="name" class="form-control" placeholder="Nama Ruang"
                             aria-label="Nama Ruang" value="{{ $room->name }}">
                     </div>
-                    <button class="btn btn-primary">Ubah </button>
+                        <button class="btn btn-primary">Ubah </button>
+                        <a class="btn btn-secondary" href="{{ route('index.ruang') }}">
+                            Batal
+                        </a>
                 </form>
                 @endforeach
                 

@@ -412,8 +412,8 @@ class PostingController extends ApiController
         $validator = Validator::make($request->all(), [
             'title',
             'description' => 'required',
-            'image' => 'image|mimes:jpeg,png,jpg,gif',
-            'doc' => 'mimes:pdf,doc',
+            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'doc' => 'mimes:pdf,doc|max:10240',
         ]);
         if ($validator->fails()) {
             return $this->errorResponse($validator->errors(), 400);

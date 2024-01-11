@@ -36,7 +36,6 @@ class PenggunaController extends Controller
             }
 
             $total_row = $data->total();
-            $total_row = $data->total();
             if ($total_row > 0) {
                 foreach ($data as $index => $row) {
                     $level = $row->level == 1 ? 'Admin' : 'Pengguna';
