@@ -200,7 +200,7 @@ Route::name('api.')->group(function () {
 
             Route::group(['prefix' => 'credential'], function () {
                 Route::get('/indexAdmin', [CredentialController::class, 'indexAdmin'])->name('credential.admin.index');
-                Route::get('/destroy/{id}', [CredentialController::class, 'destroy'])->name('credential.destroy');
+                // Route::get('/destroy/{id}', [CredentialController::class, 'destroy'])->name('credential.destroy');
             });
 
             Route::group(['prefix' => 'education'], function () {
